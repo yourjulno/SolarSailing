@@ -80,7 +80,7 @@ plt.ylabel('Угловой момент (кг·м²/с)')
 plt.title('Зависимость углового момента от времени')
 plt.legend()
 plt.grid(True)
-
+plt.savefig('Energy')
 # Визуализация в 3D
 fig = plt.figure(figsize=(10, 5))
 ax = fig.add_subplot(111)
@@ -98,6 +98,6 @@ ax.set_ylabel('Y (м)')
 ax.set_title('Траектория спутника вокруг Солнца')
 ax.legend()
 ax.grid(True)
-
+plt.savefig('Orbit')
 # Показать график
-plt.show()
+
