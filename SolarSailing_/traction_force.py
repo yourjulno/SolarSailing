@@ -1,11 +1,11 @@
-import constants
+import constants as const
 import numpy as np
 import sympy as sp
 from scipy.integrate import solve_ivp
 import initial_params as ip
 
 # скорость истечения топлива
-u = 12753  # м/с
+u = 12753 * (const.DU / const.TU)  # км/день
 
 # максимальная сила тяги
 f_max = 20

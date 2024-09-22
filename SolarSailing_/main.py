@@ -47,18 +47,29 @@ total_energy = speeds ** 2 - 2 * const.MU_sun / distances
 
 # Угловой момент
 c = np.cross(r, v)
-
 c_norm = np.linalg.norm(c, axis=1)
 
-fig = plt.figure(figsize=(8, 5))
-ax = fig.add_subplot(111)
+# Создание фигуры и 3D-оси
+fig = plt.figure(figsize=(12, 8))
+ax = fig.add_subplot(111, projection='3d')
 
 # Отрисовка орбиты
-ax.plot(x, y, label='Орбита спутника', color='blue')
+ax.plot(x, y, z, label='Орбита спутника', color='blue')
 
 # Отрисовка Солнца в начале координат
-ax.scatter(0, 0, color='yellow', s=100, label='Солнце')
+ax.scatter(0, 0, 0, color='yellow', s=100, label='Солнце')
+# Установка меток на осях
+ax.set_xticks(np.linspace(x[0], x[-1], 6))
+ax.set_yticks(np.linspace(y[0], y[-1], 6))
+ax.set_zticks(np.linspace(z[0], z[-1], 6))
+# Настройка сетки и меток
 ax.grid(True)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+
+# Добавление легенды
+ax.legend()
 
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 15))
 
