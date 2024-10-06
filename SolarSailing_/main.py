@@ -6,6 +6,7 @@ import constants as const
 import initial_params as ip
 from gravity_force import gravity_acceleration
 import thrust_force as tf
+import solar_force as sf
 # Функция для вычисления производной
 def derivatives(t, y):
     global MU_sun
@@ -18,7 +19,8 @@ def derivatives(t, y):
     # Ускорение
     a_trac = tf.traction_acceleration(m, e)
     a_grav = gravity_acceleration(r)
-    a = a_grav + a_trac
+    a_solar = sf.solar_force() / ip.m0
+    a = a_grav + a_trac + a_solar
     m_dot = [-np.linalg.norm(a_trac) * m / tf.u]
 
     return np.concatenate((v, a, m_dot))
@@ -76,7 +78,7 @@ ax.set_zlabel('Z')
 
 # Добавление легенды
 ax.legend()
-plt.savefig('orbit')
+plt.savefig('images/orbit')
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 15))
 
 # График интеграла энергии
@@ -94,6 +96,6 @@ ax2.set_ylabel('Момент')
 ax2.set_title('Зависимость орбитального момента от времени')
 ax2.legend()
 ax2.grid(True)
-plt.savefig('momentum_energy')
+plt.savefig('images/momentum_energy')
 plt.show()
 
