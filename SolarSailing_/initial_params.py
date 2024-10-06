@@ -4,6 +4,7 @@ import constants as const
 r0 = np.array([const.AU, 0, 0], dtype = np.float64)  # Начальная позиция (1 AU от Солнца)
 v0 = np.array([0, np.sqrt(const.MU_sun / const.AU) / 2, 0])  # Начальная скорость (орбитальная скорость Земли)
 
+m0 = [200]
 
 # Время интегрирования
 t_span = (0, 365.25 * 24 * 60 * 60 / const.TU)  # Один год в секундах

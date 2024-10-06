@@ -4,22 +4,28 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 import constants as const
 import initial_params as ip
-from gravity_force import gravity_force
-from traction_force import traction_force
+from gravity_force import gravity_acceleration
+import thrust_force as tf
 # Функция для вычисления производной
 def derivatives(t, y):
     global MU_sun
     r = y[:3]  # Позиция
     v = y[3:6]  # Скорость
+    m = y[6]
 
+    v_norm = np.linalg.norm(v)
+    e = v / v_norm
     # Ускорение
-    a = gravity_force(r) + traction_force()
+    a_trac = tf.traction_acceleration(m, e)
+    a_grav = gravity_acceleration(r)
+    a = a_grav + a_trac
+    m_dot = [-np.linalg.norm(a_trac) * m / tf.u]
 
-    return np.concatenate((v, a))
+    return np.concatenate((v, a, m_dot))
 
 
 # Объединение начальных условий в один массив
-initial_conditions = np.concatenate((ip.r0, ip.v0))
+initial_conditions = np.concatenate((ip.r0, ip.v0, ip.m0))
 
 # Решение системы дифференциальных уравнений
 solution = solve_ivp(derivatives, ip.t_span, initial_conditions,
@@ -58,10 +64,10 @@ ax.plot(x, y, z, label='Орбита спутника', color='blue')
 
 # Отрисовка Солнца в начале координат
 ax.scatter(0, 0, 0, color='yellow', s=100, label='Солнце')
-# Установка меток на осях
-ax.set_xticks(np.linspace(x[0], x[-1], 6))
-ax.set_yticks(np.linspace(y[0], y[-1], 6))
-ax.set_zticks(np.linspace(z[0], z[-1], 6))
+# # Установка меток на осях
+# ax.set_xticks(np.linspace(x[0], x[-1], 6))
+# ax.set_yticks(np.linspace(y[0], y[-1], 6))
+# ax.set_zticks(np.linspace(z[0], z[-1], 6))
 # Настройка сетки и меток
 ax.grid(True)
 ax.set_xlabel('X')
@@ -70,7 +76,7 @@ ax.set_zlabel('Z')
 
 # Добавление легенды
 ax.legend()
-
+plt.savefig('orbit')
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(20, 15))
 
 # График интеграла энергии
@@ -88,5 +94,6 @@ ax2.set_ylabel('Момент')
 ax2.set_title('Зависимость орбитального момента от времени')
 ax2.legend()
 ax2.grid(True)
-plt.show()
 plt.savefig('momentum_energy')
+plt.show()
+
