@@ -19,8 +19,8 @@ def derivatives(t, y):
     # Ускорение
     a_trac = tf.traction_acceleration(m, e)
     a_grav = gravity_acceleration(r)
-    a_solar = sf.solar_force() / ip.m0
-    a = a_grav + a_trac + a_solar
+    a_solar = sf.solar_force(-v / v_norm) / ip.m0
+    a = a_grav +  a_solar
     m_dot = [-np.linalg.norm(a_trac) * m / tf.u]
 
     return np.concatenate((v, a, m_dot))
