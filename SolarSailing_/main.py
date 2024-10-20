@@ -7,27 +7,27 @@ import initial_params as ip
 from gravity_force import gravity_acceleration
 import thrust_force as tf
 import solar_force as sf
+
+
 # Функция для вычисления производной
 def derivatives(t, y):
-    global MU_sun
-    r = y[:3]  # Позиция
-    v = y[3:6]  # Скорость
-    m = y[6]
 
-    v_norm = np.linalg.norm(v)
-    e = v / v_norm
+    r_i = y[:3]  # Позиция
+    v_i = y[3:6]  # Скорость
+
     # Ускорение
-    a_trac = tf.traction_acceleration(m, e)
-    a_grav = gravity_acceleration(r)
-    a_solar = sf.solar_force(-v / v_norm) / ip.m0
-    a = a_grav +  a_solar
-    m_dot = [-np.linalg.norm(a_trac) * m / tf.u]
+    # a_trac = tf.traction_acceleration(m, e)
+    a_grav = gravity_acceleration(r_i)
 
-    return np.concatenate((v, a, m_dot))
+    a_solar = sf.solar_force(r_i, v_i) / ip.m0
+
+    a = a_grav + a_solar
+
+    return np.concatenate((v_i, a))
 
 
 # Объединение начальных условий в один массив
-initial_conditions = np.concatenate((ip.r0, ip.v0, ip.m0))
+initial_conditions = np.concatenate((ip.r0, ip.v0))
 
 # Решение системы дифференциальных уравнений
 solution = solve_ivp(derivatives, ip.t_span, initial_conditions,
@@ -98,4 +98,3 @@ ax2.legend()
 ax2.grid(True)
 plt.savefig('images/momentum_energy')
 plt.show()
-
