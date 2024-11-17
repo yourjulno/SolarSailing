@@ -8,7 +8,7 @@ import initial_params as ip
 u = 12753 / const.VU # км/день
 
 # максимальная сила тяги
-f_max = 20e-6 / (const.MU * const.DU / (const.TU ** 2))
+f_max = 20e-6 / (const.MU_sun * const.DU / (const.TU ** 2))
 
 gamma = f_max / u
 
