@@ -14,12 +14,14 @@ def derivatives(t, y):
     r_i = y[:3]  # Позиция
     v_i = y[3:6]  # Скорость
 
+    r_i_norm = np.linalg.norm(r_i)
+    v_i_norm = np.linalg.norm(v_i)
     # Ускорение
     # a_trac = tf.traction_acceleration(m, e)
     a_grav = gf.gravity_acceleration(r_i)
 
     # Угол между r и v
-    psi = np.arctan2(np.linalg.norm(np.cross(r_i, v_i)), np.dot(r_i, v_i))
+    psi = np.arccos((r_i @ v_i) / (r_i_norm * v_i_norm))
     a_solar = sf.solar_force(r_i, v_i, psi, ip.m0)
 
     a = a_grav + a_solar
@@ -30,7 +32,7 @@ def derivatives(t, y):
 
 
 # Объединение начальных условий в один массив
-initial_conditions = np.hstack((ip.r0, ip.v0))
+initial_conditions = np.hstack((ip.r0_initial, ip.v0_initial))
 
 # Решение системы дифференциальных уравнений
 solution = solve_ivp(derivatives, ip.t_span, initial_conditions,

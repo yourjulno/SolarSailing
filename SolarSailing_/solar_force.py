@@ -10,7 +10,7 @@ P_Earth = E_Earth / c_light  # kg / (m * s^2)
 P_au = P_Earth * const.TU ** 2 / (const.AU * 1e3)  # N_in_units / m^2
 
 # sail area
-A = 594.364755174347  # m^2
+A = 1000.364755174347  # m^2
 
 # коэффициент отражения
 r = 0.91
@@ -25,9 +25,11 @@ s = 0.89
 
 # управление, psi - угол между v и r
 def control(psi: float) -> float:
-    tan_psi = np.tan(psi)
-    tan_alpha = (-3 + np.sqrt(9 + 8 * tan_psi**2)) / (4 * tan_psi)
-    return np.arctan(tan_alpha)
+    cos_psi = np.cos(psi)
+    sqrt_cos_psi = cos_psi * np.sqrt(8 + cos_psi**2)
+    cos2_a = 8/3 * (3 + sqrt_cos_psi) / (12 + cos_psi**2 + sqrt_cos_psi)
+    cos_a = np.sqrt(cos2_a)
+    return np.arccos(cos_a)
 
 def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float) -> np.array:
     global r, s, B_f, B_b, e_f, e_b, A, P_au
@@ -45,7 +47,7 @@ def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float) -> n
     angle1 = control(psi)
     angle2 = 0
     # нормаль к поверхности паруса в орбитальной СК
-    n = np.array([np.cos(angle1), 0, np.sin(angle2)])
+    n = np.array([np.cos(angle1) * np.cos(angle2), np.cos(angle1) * np.sin(angle2), np.sin(angle2)])
     # направление падения солнечного луча в орбитальной СК
     u = np.array([1, 0, 0])
     cos_a = np.dot(n, u)
