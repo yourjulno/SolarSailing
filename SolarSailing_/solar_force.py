@@ -24,14 +24,14 @@ e_b = 0.27
 s = 0.89
 
 # управление, psi - угол между v и r
-def control(psi: float) -> float:
+def control(psi: float, delta: float) -> float:
     cos_psi = np.cos(psi)
     sqrt_cos_psi = cos_psi * np.sqrt(8 + cos_psi**2)
     cos2_a = 8/3 * (3 + sqrt_cos_psi) / (12 + cos_psi**2 + sqrt_cos_psi)
     cos_a = np.sqrt(cos2_a)
     return np.arccos(cos_a)
 
-def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float) -> np.array:
+def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float, delta: float) -> np.array:
     global r, s, B_f, B_b, e_f, e_b, A, P_au
     c_i = np.cross(r_i, v_i)
 
@@ -44,8 +44,10 @@ def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float) -> n
     # матрица перехода из инерциальной в орбитальную СК
     S = np.array([e1, e2, e3]).T
 
-    angle1 = control(psi)
+    angle1 = control(psi, delta)
+    # TODO: считать в control черед угол дельта
     angle2 = 0
+    print(angle2)
     # нормаль к поверхности паруса в орбитальной СК
     n = np.array([np.cos(angle1) * np.cos(angle2), np.cos(angle1) * np.sin(angle2), np.sin(angle2)])
     # направление падения солнечного луча в орбитальной СК
