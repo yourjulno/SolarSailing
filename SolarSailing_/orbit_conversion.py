@@ -11,38 +11,39 @@ def orbital_elements_to_state(a, e, i, Omega, omega, nu, mu):
     # mu - гравитационный параметр (м^3/с^2)
 
     # 1. Вычисление радиус-вектора r
-    r = a * (1 - e**2) / (1 + e * np.cos(nu))  # Радиус-вектор в перигее
 
+    p = a * (1 - e * e)
+    distance = p / (1 + e * np.cos(nu))
+
+    cosTrueAnomaly = np.cos(nu)
+    sinTrueAnomaly = np.sin(nu)
     # 2. Вектор в орбитальной системе координат
-    r_orbital = np.array([r * np.cos(nu), r * np.sin(nu), 0])
-
+    r_orbital = np.array([cosTrueAnomaly, sinTrueAnomaly, 0]) * distance
+    nu_dot = np.sqrt(p * mu) / distance**2
+    r_dot = p * (-e * sinTrueAnomaly * nu_dot) / (1 + e * cosTrueAnomaly)**2
     # 3. Вектор скорости в орбитальной системе координат
-    v_orbital = np.array([
-        -np.sqrt(mu/a) * np.sin(nu),
-        np.sqrt(mu/a) * (e + np.cos(nu)),
-        0
-    ])
+
+    velocity = np.array([r_dot * cosTrueAnomaly - distance * nu_dot * np.sin(nu),
+                         r_dot * sinTrueAnomaly + distance * nu_dot * np.cos(nu),
+                         0])
 
     # 4. Преобразование вектора в инерциальную систему координат
-    R = np.array([
-        [np.cos(Omega) * np.cos(omega) - np.sin(Omega) * np.sin(omega) * np.cos(i),
-         -np.cos(Omega) * np.sin(omega) - np.sin(Omega) * np.cos(omega) * np.cos(i),
-         np.sin(Omega) * np.sin(i)],
+    R3_W = np.array([[np.cos(Omega), -np.sin(Omega), 0],
+                     [np.sin(Omega), np.cos(Omega), 0],
+                     [0, 0, 1]])
+    R1_i = np.array([[1, 0, 0], [0, np.cos(i), -np.sin(i)], [0, np.sin(i), np.cos(i)]])
 
-        [np.sin(Omega) * np.cos(omega) + np.cos(Omega) * np.sin(omega) * np.cos(i),
-         -np.sin(Omega) * np.sin(omega) + np.cos(Omega) * np.cos(omega) * np.cos(i),
-         -np.cos(Omega) * np.sin(i)],
-
-        [np.sin(omega) * np.sin(i),
-         np.cos(omega) * np.sin(i),
-         np.cos(i)]
-    ])
+    R3_w = np.array([[np.cos(omega), -np.sin(omega), 0],
+                     [np.sin(omega), np.cos(omega), 0],
+                     [0, 0, 1]])
+    R = R3_W @ R1_i @ R3_w
 
     # 5. Преобразование радиус-вектора и вектора скорости
     r_inertial = R @ r_orbital
-    v_inertial = R @ v_orbital
+    v_inertial = R @ velocity
 
     return r_inertial, v_inertial
+
 
 def state_to_orbital_elements(r, v, mu):
     # r - радиус-вектор (numpy array)
@@ -57,11 +58,11 @@ def state_to_orbital_elements(r, v, mu):
     h = np.cross(r, v)  # Угловой момент
     h_norm = np.linalg.norm(h)
 
-    energy = (v_norm**2 / 2) - (mu / r_norm)  # Энергия системы
+    energy = (v_norm ** 2 / 2) - (mu / r_norm)  # Энергия системы
     a = -mu / (2 * energy)  # Большая полуось
 
     # 3. Эксцентриситет (e)
-    e_vector = (1/mu) * ((v_norm**2 - mu/r_norm) * r - np.dot(r, v) * v)
+    e_vector = (1 / mu) * ((v_norm ** 2 - mu / r_norm) * r - np.dot(r, v) * v)
     e = np.linalg.norm(e_vector)
 
     # 4. Наклонение (i)

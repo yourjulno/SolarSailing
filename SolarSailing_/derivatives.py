@@ -26,6 +26,7 @@ def derivatives(t, y):
     v_i_minus = - v_i
     psi = np.arccos((r_i @ v_i) / (r_i_norm * v_i_norm))
     a_solar = sf.solar_force(r_i, v_i, psi, ip.m0, delta)
+    #a_solar *= 0
 
     a = a_grav + a_solar
 

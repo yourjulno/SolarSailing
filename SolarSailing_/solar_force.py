@@ -20,18 +20,21 @@ B_f = 0.79  # front
 B_b = 0.67  # back
 e_f = 0.025  # излучение от передней поверхности
 e_b = 0.27
-
 s = 0.89
+
+a_c = 0.06 / (const.CU * 1000000)
+
 
 # управление, psi - угол между v и r
 def control(psi: float, delta: float) -> float:
     cos_psi = np.cos(psi)
-    sqrt_cos_psi = cos_psi * np.sqrt(8 + cos_psi**2)
-    cos2_a = 8/3 * (3 + sqrt_cos_psi) / (12 + cos_psi**2 + sqrt_cos_psi)
+    sqrt_cos_psi = cos_psi * np.sqrt(8 + cos_psi ** 2)
+    cos2_a = 8 / 3 * (3 + sqrt_cos_psi) / (12 + cos_psi ** 2 + sqrt_cos_psi)
     cos_a = np.sqrt(cos2_a)
     return np.arccos(cos_a)
 
-def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float, delta: float) -> np.array:
+
+def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float, delta: float, a: float) -> np.array:
     global r, s, B_f, B_b, e_f, e_b, A, P_au
     c_i = np.cross(r_i, v_i)
 
@@ -47,7 +50,6 @@ def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float, delt
     angle1 = control(psi, delta)
     # TODO: считать в control черед угол дельта
     angle2 = 0
-    print(angle2)
     # нормаль к поверхности паруса в орбитальной СК
     n = np.array([np.cos(angle1) * np.cos(angle2), np.cos(angle1) * np.sin(angle2), np.sin(angle2)])
     # направление падения солнечного луча в орбитальной СК
@@ -65,9 +67,12 @@ def solar_force(r_i: np.array, v_i: np.array, psi: float, sail_mass: float, delt
 
     # Force components
     PA = P * A
-    f_n = PA * ((1 + r * s) * cos_a**2 + B_f * (1 - s) * r * cos_a + (1 - r) *
+    m_del_A = P_au / ((1 + r * s) + B_f * (1 - s) * r + (1 - r) *
+                      ((e_f * B_f - e_b * B_b) / (e_f + e_b))) * a
+    A_del_m = 1 / m_del_A
+    f_n = P * ((1 + r * s) * cos_a ** 2 + B_f * (1 - s) * r * cos_a + (1 - r) *
                 ((e_f * B_f - e_b * B_b) / (e_f + e_b)) * cos_a)
-    f_t = PA * (1 - r * s) * cos_a * sin_a
+    f_t = P * (1 - r * s) * cos_a * sin_a
     f_e = f_n * n + f_t * np.array([0, 1, 0])  # Add tangential component
     f_i = np.dot(S, f_e)
-    return f_i / sail_mass
+    return f_i * A_del_m

@@ -18,10 +18,9 @@ Omega = 0
 i = 0
 nu = np.arccos((a * (1 - e**2) - r0_norm) / (r0_norm * e))
 
-
-r0_initial, v0_initial = oc.orbital_elements_to_state(a, e, i, Omega, omega, nu, const.MU_in_units)
-print(r0_initial)
-print(v0_initial)
+# r0_initial, v0_initial = oc.orbital_elements_to_state(a, e, i, Omega, omega, nu, const.MU_in_units)
+# print(r0_initial)
+# print(v0_initial)
 m0 = [30]
 
 # Время интегрирования
